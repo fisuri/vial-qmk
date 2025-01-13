@@ -38,13 +38,16 @@
       nativeBuildInputs = with pkgs; [
         gnumake
         qmk
+        jq
       ];
 
       buildPhase = ''
-        sed -i "s/\"usb_detect\": {[^}]*\"enabled\": .*/\"usb_detect\": { \"enabled\": ${toString usbDetectEnabled} }/" keyboards/fisuri/${keyboard}/info.json
+                # sed -i "s/\"usb_detect\": {[^}]*\"enabled\": .*/\"usb_detect\": { \"enabled\": ${toString usbDetectEnabled} }/" keyboards/fisuri/${keyboard}/info.json
 
-        # Сборка прошивки
-        make fisuri/${keyboard}/${rev}:${keymap}
+        jq '.split.usb_detect.enabled = ${toString usbDetectEnabled}' keyboards/fisuri/lotus58/info.json > tmp.json && mv tmp.json keyboards/fisuri/${keyboard}/info.json
+
+                # Сборка прошивки
+                make fisuri/${keyboard}/${rev}:${keymap}
         mv fisuri_${keyboard}_${rev}_${keymap}.hex ${outputName}.hex
       '';
 
