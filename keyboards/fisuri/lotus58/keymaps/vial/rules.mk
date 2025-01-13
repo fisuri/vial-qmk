@@ -8,10 +8,10 @@ ENCODER_MAP_ENABLE = yes
 
 # Reduce size on atmega32u4
 ifeq ($(strip $(CONVERT_TO)), )
-    TAP_DANCE_ENABLE = no
+    TAP_DANCE_ENABLE = yes
     QMK_SETTINGS = no
-    KEY_OVERRIDE_ENABLE = no
-    COMBO_ENABLE = no
+    KEY_OVERRIDE_ENABLE = yes
+    COMBO_ENABLE = yes
 
 	# Reduce size even more for non-nanoboot bootloaders
     ifneq ($(strip $(BOOTLOADER_SIZE)), 512)
