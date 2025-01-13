@@ -8,8 +8,8 @@
   repo = "vial-qmk";
   repoRev = "refs/heads/${repoBranch}";
 
-  repoSHA256 = "sha256-0/XdiFYJvA1uoldzba3PvFM1Vbojv7FLRAPJ5UyvoRo=";
-  # repoSHA256 = lib.fakeHash;
+  # repoSHA256 = "";
+  repoSHA256 = lib.fakeHash;
 
   src = pkgs.fetchFromGitHub {
     owner = repoOwner;
