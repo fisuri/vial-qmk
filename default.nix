@@ -42,12 +42,11 @@
       ];
 
       buildPhase = ''
-                # sed -i "s/\"usb_detect\": {[^}]*\"enabled\": .*/\"usb_detect\": { \"enabled\": ${toString usbDetectEnabled} }/" keyboards/fisuri/${keyboard}/info.json
+        # sed -i "s/\"usb_detect\": {[^}]*\"enabled\": .*/\"usb_detect\": { \"enabled\": ${toString usbDetectEnabled} }/" keyboards/fisuri/${keyboard}/info.json
+        jq '.split.usb_detect.enabled = ${usbDetectEnabled}' keyboards/fisuri/lotus58/info.json > tmp.json && mv tmp.json keyboards/fisuri/${keyboard}/info.json
 
-        jq '.split.usb_detect.enabled = ${toString usbDetectEnabled}' keyboards/fisuri/lotus58/info.json > tmp.json && mv tmp.json keyboards/fisuri/${keyboard}/info.json
-
-                # Сборка прошивки
-                make fisuri/${keyboard}/${rev}:${keymap}
+        # Сборка прошивки
+        make fisuri/${keyboard}/${rev}:${keymap}
         mv fisuri_${keyboard}_${rev}_${keymap}.hex ${outputName}.hex
       '';
 
@@ -62,7 +61,7 @@
     rev = keyboardRev;
     keymap = keymap;
     outputName = "fisuri_${keyboard}_${keyboardRev}_${keymap}_MASTER";
-    usbDetectEnabled = false;
+    usbDetectEnabled = "false";
   };
 
   buildSlave = buildFirmware {
@@ -70,7 +69,7 @@
     rev = keyboardRev;
     keymap = keymap;
     outputName = "fisuri_${keyboard}_${keyboardRev}_${keymap}_SLAVE";
-    usbDetectEnabled = true;
+    usbDetectEnabled = "true";
   };
 
   buildAll = pkgs.stdenv.mkDerivation {
