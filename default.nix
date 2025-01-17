@@ -3,7 +3,7 @@
   buildType ? "all",
   lib,
 }: let
-  repoBranch = "vial";
+  repoBranch = "feature/add_fisuri_ymd40v2";
   repoOwner = "fisuri";
   repo = "vial-qmk";
   repoRev = "refs/heads/${repoBranch}";
@@ -19,8 +19,8 @@
     fetchSubmodules = true;
   };
 
-  keyboard = "";
-  keyboardRev = "";
+  keyboard = "ymd40";
+  keyboardRev = "v2";
   keymap = "vial";
 
   buildFirmware = {
