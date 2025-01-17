@@ -3,7 +3,7 @@
   buildType ? "all",
   lib,
 }: let
-  repoBranch = "feature/add_fisuri_lotus58";
+  repoBranch = "vial";
   repoOwner = "fisuri";
   repo = "vial-qmk";
   repoRev = "refs/heads/${repoBranch}";
@@ -19,8 +19,8 @@
     fetchSubmodules = true;
   };
 
-  keyboard = "lotus58";
-  keyboardRev = "promicro";
+  keyboard = "";
+  keyboardRev = "";
   keymap = "vial";
 
   buildFirmware = {
@@ -42,8 +42,9 @@
       ];
 
       buildPhase = ''
-        # sed -i "s/\"usb_detect\": {[^}]*\"enabled\": .*/\"usb_detect\": { \"enabled\": ${toString usbDetectEnabled} }/" keyboards/fisuri/${keyboard}/info.json
-        jq '.split.usb_detect.enabled = ${usbDetectEnabled}' keyboards/fisuri/lotus58/info.json > tmp.json && mv tmp.json keyboards/fisuri/${keyboard}/info.json
+        if [ "${keyboard}" = "lotus58" ]; then
+            jq '.split.usb_detect.enabled = ${usbDetectEnabled}' keyboards/fisuri/lotus58/info.json > tmp.json && mv tmp.json keyboards/fisuri/${keyboard}/info.json
+        fi
 
         # Сборка прошивки
         make fisuri/${keyboard}/${rev}:${keymap}
