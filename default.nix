@@ -71,7 +71,7 @@
       rev = "promicro";
       outputName = "fisuri_${keyboard}_promicro_${keymap}_${mode}";
       customBuildPhase = ''
-        jq '.split.usb_detect.enabled = ${usbDetect}' keyboards/fisuri/lotus58/info.json > tmp.json && mv tmp.json keyboards/fisuri/${keyboard}/info.json
+        jq '.split.usb_detect.enabled = ${usbDetect}' keyboards/fisuri/${keyboard}/info.json > tmp.json && mv tmp.json keyboards/fisuri/${keyboard}/info.json
       '';
     };
 
