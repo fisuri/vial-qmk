@@ -1,9 +1,9 @@
 {
   pkgs ? import <nixpkgs> {},
-  buildType ? "all",
+  buildKeyboard,
   lib,
 }: let
-  repoBranch = "feature/add_fisuri_ymd40v2";
+  repoBranch = "vial";
   repoOwner = "fisuri";
   repo = "vial-qmk";
   repoRev = "refs/heads/${repoBranch}";
@@ -19,8 +19,7 @@
     fetchSubmodules = true;
   };
 
-  keyboard = "ymd40";
-  keyboardRev = "v2";
+  keyboard = buildKeyboard;
   keymap = "vial";
 
   buildFirmware = {
@@ -28,12 +27,12 @@
     rev,
     keymap,
     outputName,
-    usbDetectEnabled,
+    customBuildPhase ? '''',
   }:
     pkgs.stdenv.mkDerivation {
       inherit src;
 
-      name = "build-${keyboard}-${rev}-${keymap}-${buildType}";
+      name = "build-${keyboard}-${rev}-${keymap}";
 
       nativeBuildInputs = with pkgs; [
         gnumake
@@ -42,9 +41,7 @@
       ];
 
       buildPhase = ''
-        if [ "${keyboard}" = "lotus58" ]; then
-            jq '.split.usb_detect.enabled = ${usbDetectEnabled}' keyboards/fisuri/lotus58/info.json > tmp.json && mv tmp.json keyboards/fisuri/${keyboard}/info.json
-        fi
+        ${customBuildPhase}
 
         # Сборка прошивки
         make fisuri/${keyboard}/${rev}:${keymap}
@@ -57,84 +54,63 @@
       '';
     };
 
-  buildMaster = buildFirmware {
-    keyboard = keyboard;
-    rev = keyboardRev;
-    keymap = keymap;
-    outputName = "fisuri_${keyboard}_${keyboardRev}_${keymap}_MASTER";
-    usbDetectEnabled = "false";
-  };
+  buildLotus58 = {isMaster}: let
+    mode =
+      if isMaster
+      then "MASTER"
+      else "SLAVE";
 
-  buildSlave = buildFirmware {
-    keyboard = keyboard;
-    rev = keyboardRev;
-    keymap = keymap;
-    outputName = "fisuri_${keyboard}_${keyboardRev}_${keymap}_SLAVE";
-    usbDetectEnabled = "true";
-  };
+    usbDetect =
+      if isMaster
+      then "false"
+      else "true";
+  in
+    buildFirmware {
+      inherit keyboard keymap;
 
-  buildAll = pkgs.stdenv.mkDerivation {
-    inherit src;
+      rev = "promicro";
+      outputName = "fisuri_${keyboard}_promicro_${keymap}_${mode}";
+      customBuildPhase = ''
+        jq '.split.usb_detect.enabled = ${usbDetect}' keyboards/fisuri/lotus58/info.json > tmp.json && mv tmp.json keyboards/fisuri/${keyboard}/info.json
+      '';
+    };
 
-    name = "build-all";
+  lotus58BuildConfigs = [
+    {isMaster = true;}
+    {isMaster = false;}
+  ];
 
-    buildInputs = [buildMaster buildSlave];
+  buildLotus58All =
+    pkgs.stdenv.mkDerivation
+    {
+      inherit src;
 
-    buildPhase = ''
-      echo "Building all firmware versions..."
-    '';
+      name = "build-lotus58";
 
-    installPhase = ''
-      mkdir -p $out
-      ls ${buildMaster}
-      ls ${buildSlave}
+      buildInputs = map (config: buildLotus58 config) lotus58BuildConfigs;
 
-      cp ${buildMaster}/fisuri_${keyboard}_${keyboardRev}_${keymap}_MASTER.hex $out/
-      cp ${buildSlave}/fisuri_${keyboard}_${keyboardRev}_${keymap}_SLAVE.hex $out/
-      echo "All builds completed."
-    '';
+      buildPhase = ''
+        echo "Building lotus58 all firmware versions..."
+      '';
+
+      installPhase = ''
+        mkdir -p $out
+
+        cp ${buildLotus58 {isMaster = true;}}/fisuri_${keyboard}_promicro_${keymap}_MASTER.hex $out/
+        cp ${buildLotus58 {isMaster = false;}}/fisuri_${keyboard}_promicro_${keymap}_SLAVE.hex $out/
+        echo "All builds completed."
+      '';
+    };
+
+  buildYmd40v2 = buildFirmware {
+    inherit keyboard keymap;
+
+    rev = "v2";
+    outputName = "fisuri_${keyboard}_v2_${keymap}_MASTER";
   };
 in
-  if buildType == "all"
-  then buildAll
-  else if buildType == "master"
-  then buildMaster
-  else buildSlave
-# {
-#   inherit buildMaster buildSlave;
-# }
-# pkgs.stdenv.mkDerivation {
-#   name = "build-master";
-#
-#   src = pkgs.fetchFromGitHub {
-#     owner = "fisuri";
-#     repo = "vial-qmk";
-#     rev = "refs/heads/feature/add_fisuri_lotus58";
-#     sha256 = "sha256-JqivO9P3tznAnpiS4QVwfb0YLSsRCUf4OFEqO+wBqDA=";
-#     fetchSubmodules = true;
-#   };
-#
-#   nativeBuildInputs = with pkgs; [
-#     gnumake
-#     qmk
-#     libgcc
-#     git
-#   ];
-#
-#   # unpackPhase = ''
-#   #   git submodule update --init --recursive
-#   # '';
-#
-#   buildPhase = ''
-#       make fisuri/lotus58/promicro:vial
-#       mv fisuri_lotus58_promicro_vial.hex fisuri_lotus58_promicro_vial_MASTER.hex
-#     # qmk compile -kb fisuri/lotus58/promicro -km vial
-#     # make git-submodule
-#   '';
-#
-#   installPhase = ''
-#     mkdir -p $out
-#     mv fisuri_lotus58_promicro_vial_MASTER.hex $out/
-#   '';
-# }
-
+  if buildKeyboard == "ymd40"
+  then buildYmd40v2
+  else if buildKeyboard == "lotus58"
+  then buildLotus58All
+  else null
