@@ -1,23 +1,28 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
+    flake-utils.url = "github:numtide/flake-utils";
   };
   outputs = {
     self,
     nixpkgs,
+    flake-utils,
     ...
-  } @ inputs: let
-    supportedSystems = ["x86_64-linux"];
-    forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
-    pkgs = nixpkgs.legacyPackages;
-  in {
-    packages = forAllSystems (system: {
-      buildLotus58 = pkgs.${system}.callPackage ./default.nix {buildKeyboard = "lotus58";};
-      buildYmd40v2 = pkgs.${system}.callPackage ./default.nix {buildKeyboard = "ymd40";};
-    });
+  } @ inputs:
+    flake-utils.lib.eachDefaultSystem (
+      system: let
+        pkgs = import nixpkgs {
+          inherit system;
+        };
+      in {
+        packages = {
+          buildLotus58 = pkgs.callPackage ./default.nix {buildKeyboard = "lotus59";};
+          buildYmd40v2 = pkgs.callPackage ./default.nix {buildKeyboard = "ymd40";};
+        };
 
-    devShells = forAllSystems (system: {
-      default = pkgs.${system}.callPackage ./shell.nix {};
-    });
-  };
+        devShells = {
+          default = pkgs.callPackage ./shell.nix {};
+        };
+      }
+    );
 }
