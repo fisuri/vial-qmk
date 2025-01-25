@@ -18,6 +18,7 @@
         packages = {
           buildLotus58 = pkgs.callPackage ./default.nix {buildKeyboard = "lotus59";};
           buildYmd40v2 = pkgs.callPackage ./default.nix {buildKeyboard = "ymd40";};
+          buildSofle = pkgs.callPackage ./default.nix {buildKeyboard = "sofle";};
         };
 
         devShells = {

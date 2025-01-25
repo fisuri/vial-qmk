@@ -108,9 +108,18 @@
     rev = "v2";
     outputName = "fisuri_${keyboard}_v2_${keymap}_MASTER";
   };
+
+  buildSofle = buildFirmware {
+    inherit keyboard keymap;
+
+    rev = "rev1";
+    outputName = "fisuri_${keyboard}_rev1_${keymap}_MASTER";
+  };
 in
   if buildKeyboard == "ymd40"
   then buildYmd40v2
   else if buildKeyboard == "lotus58"
   then buildLotus58All
+  else if buildKeyboard == "sofle"
+  then buildSofle
   else null
