@@ -4,8 +4,8 @@
     "url": "",
     "maintainer": "fisuri",
     "usb": {
-        "vid": "0x594D",
-        "pid": "0x4440",
+        "vid": "0x796D",
+        "pid": "0x7964",
         "device_version": "0.0.1"
     },
     "features": {

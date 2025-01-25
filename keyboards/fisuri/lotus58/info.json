@@ -40,8 +40,8 @@
     "usb": {
         "device_version": "1.2.3",
         "force_nkro": true,
-        "pid": "0x23B0",
-        "vid": "0x594D"
+        "vid": "0x796D",
+        "pid": "0x6C6F"
     },
     "layouts": {
         "LAYOUT": {
