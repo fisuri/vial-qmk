@@ -12,12 +12,12 @@
     flake-utils.lib.eachDefaultSystem (
       system: let
         pkgs = import nixpkgs {
-          inherit system;
+          inherit system inputs;
         };
       in {
         packages = {
-          buildLotus58 = pkgs.callPackage ./default.nix {buildKeyboard = "lotus59";};
-          buildYmd40v2 = pkgs.callPackage ./default.nix {buildKeyboard = "ymd40";};
+          Lotus58 = pkgs.callPackage ./default.nix {buildKeyboard = "lotus58";};
+          Ymd40v2 = pkgs.callPackage ./default.nix {buildKeyboard = "ymd40";};
         };
 
         devShells = {

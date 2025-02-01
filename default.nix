@@ -85,9 +85,9 @@
     {
       inherit src;
 
-      name = "build-lotus58";
+      name = "build-lotus58-all";
 
-      buildInputs = map (config: buildLotus58 config) lotus58BuildConfigs;
+      buildInputs = map buildLotus58 lotus58BuildConfigs;
 
       buildPhase = ''
         echo "Building lotus58 all firmware versions..."
