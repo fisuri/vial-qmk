@@ -18,6 +18,7 @@
         packages = {
           Lotus58 = pkgs.callPackage ./default.nix {buildKeyboard = "lotus58";};
           Ymd40v2 = pkgs.callPackage ./default.nix {buildKeyboard = "ymd40";};
+          Klor = pkgs.callPackage ./default.nix {buildKeyboard = "klor";};
         };
 
         devShells = {

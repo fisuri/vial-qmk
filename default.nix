@@ -24,7 +24,7 @@
 
   buildFirmware = {
     keyboard,
-    rev,
+    rev ? "",
     keymap,
     outputName,
     customBuildPhase ? '''',
@@ -54,6 +54,37 @@
       '';
     };
 
+  buildFirmwareKlore = {
+    keyboard,
+    keymap,
+    outputName,
+    customBuildPhase ? '''',
+  }:
+    pkgs.stdenv.mkDerivation {
+      inherit src;
+
+      name = "build-${keyboard}-${keymap}";
+
+      nativeBuildInputs = with pkgs; [
+        gnumake
+        qmk
+        jq
+      ];
+
+      buildPhase = ''
+        ${customBuildPhase}
+
+        # Сборка прошивки
+        make fisuri/${keyboard}:${keymap}
+        mv fisuri_${keyboard}_${keymap}.hex ${outputName}.hex
+      '';
+
+      installPhase = ''
+        mkdir -p $out
+        mv ${outputName}.hex $out/
+      '';
+    };
+
   buildLotus58 = {isMaster}: let
     mode =
       if isMaster
@@ -69,7 +100,7 @@
       inherit keyboard keymap;
 
       rev = "promicro";
-      outputName = "fisuri_${keyboard}_promicro_${keymap}_${mode}";
+      outputName = "fisuri_${keyboard}_${keymap}_${mode}";
       customBuildPhase = ''
         jq '.split.usb_detect.enabled = ${usbDetect}' keyboards/fisuri/${keyboard}/info.json > tmp.json && mv tmp.json keyboards/fisuri/${keyboard}/info.json
       '';
@@ -96,8 +127,8 @@
       installPhase = ''
         mkdir -p $out
 
-        cp ${buildLotus58 {isMaster = true;}}/fisuri_${keyboard}_promicro_${keymap}_MASTER.hex $out/
-        cp ${buildLotus58 {isMaster = false;}}/fisuri_${keyboard}_promicro_${keymap}_SLAVE.hex $out/
+        cp ${buildLotus58 {isMaster = true;}}/fisuri_${keyboard}_${keymap}_MASTER.hex $out/
+        cp ${buildLotus58 {isMaster = false;}}/fisuri_${keyboard}_${keymap}_SLAVE.hex $out/
         echo "All builds completed."
       '';
     };
@@ -106,11 +137,19 @@
     inherit keyboard keymap;
 
     rev = "v2";
-    outputName = "fisuri_${keyboard}_v2_${keymap}_MASTER";
+    outputName = "fisuri_${keyboard}_${keymap}_MASTER";
+  };
+
+  buildKlor = buildFirmwareKlore {
+    inherit keyboard keymap;
+
+    outputName = "fisuri_${keyboard}_${keymap}_MASTER";
   };
 in
   if buildKeyboard == "ymd40"
   then buildYmd40v2
   else if buildKeyboard == "lotus58"
   then buildLotus58All
+  else if buildKeyboard == "klor"
+  then buildKlor
   else null
