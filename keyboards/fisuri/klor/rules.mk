@@ -1,1 +1,3 @@
+DEFAULT_FOLDER = fisuri/klor
+
 POINTING_DEVICE_DRIVER = paw3204
