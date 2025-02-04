@@ -8,8 +8,8 @@
   repo = "vial-qmk";
   repoRev = "refs/heads/${repoBranch}";
 
-  # repoSHA256 = "";
-  repoSHA256 = lib.fakeHash;
+  repoSHA256 = "sha256-RXHJdGW2XldEtCoDx58d/0bFuQdEEdblywDlBuciGjc=";
+  # repoSHA256 = lib.fakeHash;
 
   src = pkgs.fetchFromGitHub {
     owner = repoOwner;
@@ -24,7 +24,7 @@
 
   buildFirmware = {
     keyboard,
-    rev ? "",
+    rev,
     keymap,
     outputName,
     customBuildPhase ? '''',
@@ -54,7 +54,7 @@
       '';
     };
 
-  buildFirmwareKlore = {
+  buildFirmwareWithoutRev = {
     keyboard,
     keymap,
     outputName,
@@ -140,7 +140,7 @@
     outputName = "fisuri_${keyboard}_${keymap}_MASTER";
   };
 
-  buildKlor = buildFirmwareKlore {
+  buildKlor = buildFirmwareWithoutRev {
     inherit keyboard keymap;
 
     outputName = "fisuri_${keyboard}_${keymap}_MASTER";
