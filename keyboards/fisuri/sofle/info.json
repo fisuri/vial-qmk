@@ -33,6 +33,9 @@
                 "matrix_state": true
             }
         }
+		    "usb_detect": {
+		        "enabled": true
+		    }
     },
     "ws2812": {
         "pin": "D3"
