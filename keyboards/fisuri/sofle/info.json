@@ -34,7 +34,7 @@
 			}
 		},
 		"usb_detect": {
-			"enabled": true
+			"enabled": false
 		}
 	},
 	"ws2812": {
