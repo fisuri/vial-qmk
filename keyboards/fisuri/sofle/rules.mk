@@ -1,1 +1,1 @@
-DEFAULT_FOLDER = sofle/rev1
+DEFAULT_FOLDER = fisuri/sofle/rev1
