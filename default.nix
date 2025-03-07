@@ -3,19 +3,17 @@
   buildKeyboard,
   lib,
 }: let
-  repoBranch = "vial";
-  repoOwner = "fisuri";
+  owner = "fisuri";
   repo = "vial-qmk";
-  repoRev = "refs/heads/${repoBranch}";
+  branch = "vial";
+  rev = "refs/heads/${branch}";
 
-  # repoSHA256 = "";
-  repoSHA256 = lib.fakeHash;
+  sha256 = "sha256-Is0Ehq5i1LQE2JkrI9BKv5UNEIRitycqCnR9gqoT8nw=";
+  # sha256 = lib.fakeHash;
 
   src = pkgs.fetchFromGitHub {
-    owner = repoOwner;
-    repo = repo;
-    rev = repoRev;
-    sha256 = repoSHA256;
+    inherit owner repo rev sha256;
+
     fetchSubmodules = true;
   };
 
@@ -85,6 +83,11 @@
       '';
     };
 
+  buildConfigs = [
+    {isMaster = true;}
+    {isMaster = false;}
+  ];
+
   buildLotus58 = {isMaster}: let
     mode =
       if isMaster
@@ -106,11 +109,6 @@
       '';
     };
 
-  lotus58BuildConfigs = [
-    {isMaster = true;}
-    {isMaster = false;}
-  ];
-
   buildLotus58All =
     pkgs.stdenv.mkDerivation
     {
@@ -118,7 +116,7 @@
 
       name = "build-lotus58-all";
 
-      buildInputs = map buildLotus58 lotus58BuildConfigs;
+      buildInputs = map buildLotus58 buildConfigs;
 
       buildPhase = ''
         echo "Building lotus58 all firmware versions..."
@@ -146,12 +144,48 @@
     outputName = "fisuri_${keyboard}_${keymap}_MASTER";
   };
 
-  buildSofle = buildFirmware {
-    inherit keyboard keymap;
+  buildSofle = {isMaster}: let
+    mode =
+      if isMaster
+      then "MASTER"
+      else "SLAVE";
 
-    rev = "rev1";
-    outputName = "fisuri_${keyboard}_rev1_${keymap}_MASTER";
-  };
+    usbDetect =
+      if isMaster
+      then "false"
+      else "true";
+  in
+    buildFirmware {
+      inherit keyboard keymap;
+
+      rev = "rev1";
+      outputName = "fisuri_${keyboard}_${keymap}_${mode}";
+      customBuildPhase = ''
+        jq '.split.usb_detect.enabled = ${usbDetect}' keyboards/fisuri/${keyboard}/info.json > tmp.json && mv tmp.json keyboards/fisuri/${keyboard}/info.json
+      '';
+    };
+
+  buildSofleAll =
+    pkgs.stdenv.mkDerivation
+    {
+      inherit src;
+
+      name = "build-sofle-all";
+
+      buildInputs = map buildSofle buildConfigs;
+
+      buildPhase = ''
+        echo "Building sofle all firmware versions..."
+      '';
+
+      installPhase = ''
+        mkdir -p $out
+
+        cp ${buildSofle {isMaster = true;}}/fisuri_${keyboard}_${keymap}_MASTER.hex $out/
+        cp ${buildSofle {isMaster = false;}}/fisuri_${keyboard}_${keymap}_SLAVE.hex $out/
+        echo "All builds completed."
+      '';
+    };
 in
   if buildKeyboard == "ymd40"
   then buildYmd40v2
@@ -160,5 +194,5 @@ in
   else if buildKeyboard == "klor"
   then buildKlor
   else if buildKeyboard == "sofle"
-  then buildSofle
+  then buildSofleAll
   else null
