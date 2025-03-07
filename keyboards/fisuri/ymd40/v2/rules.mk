@@ -1,3 +1,0 @@
-# DEFAULT_FOLDER = fisuri/ymd40/v2
-
-AUDIO_SUPPORTED = no
