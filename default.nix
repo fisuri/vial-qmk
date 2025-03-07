@@ -8,8 +8,8 @@
   branch = "vial";
   rev = "refs/heads/${branch}";
 
-  sha256 = "sha256-Is0Ehq5i1LQE2JkrI9BKv5UNEIRitycqCnR9gqoT8nw=";
-  # sha256 = lib.fakeHash;
+  # sha256 = "";
+  sha256 = lib.fakeHash;
 
   src = pkgs.fetchFromGitHub {
     inherit owner repo rev sha256;
