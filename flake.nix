@@ -24,17 +24,10 @@
           ymd40 = pkgs.callPackage ./nix/ymd40.nix {inherit common;};
           klor = pkgs.callPackage ./nix/klor.nix {inherit pkgs common;};
           sofle = pkgs.callPackage ./nix/sofle.nix {inherit pkgs common;};
-
-          # inherit lotus58 ymd40v2 klor sofle;
-
-          # lotus58 = pkgs.callPackage ./default.nix {buildKeyboard = "lotus58";};
-          # ymd40v2 = pkgs.callPackage ./default.nix {buildKeyboard = "ymd40";};
-          # klor = pkgs.callPackage ./default.nix {buildKeyboard = "klor";};
-          # sofle = pkgs.callPackage ./default.nix {buildKeyboard = "sofle";};
         };
 
         devShells = {
-          default = pkgs.callPackage ./shell.nix {};
+          default = pkgs.callPackage ./nix/shell.nix {};
         };
       }
     );
